@@ -1,0 +1,370 @@
+{
+    "_version": "1.26.0",
+    "sap.app": {
+        "id": "bfgmgntappr.workflowuimodule",
+        "type": "application",
+        "i18n": "i18n/i18n.properties",
+        "applicationVersion": {
+            "version": "0.0.1"
+        },
+        "title": "{{appTitle}}",
+        "description": "{{appDescription}}",
+        "resources": "resources.json",
+        "sourceTemplate": {
+            "id": "@sap/generator-fiori:basic",
+            "version": "1.8.4",
+            "toolsId": "90895fb4-7ad0-4e89-ae7e-0687a5c8ef63"
+        },
+        "dataSources": {
+            "mainService": {
+                "uri": "/sap/opu/odata/",
+                "type": "OData",
+                "settings": {
+                    "annotations": [],
+                    "localUri": "localService/metadata.xml",
+                    "odataVersion": "2.0"
+                }
+            }
+        }
+    },
+    "sap.ui": {
+        "technology": "UI5",
+        "icons": {
+            "icon": "",
+            "favIcon": "",
+            "phone": "",
+            "phone@2": "",
+            "tablet": "",
+            "tablet@2": ""
+        },
+        "deviceTypes": {
+            "desktop": true,
+            "tablet": true,
+            "phone": true
+        }
+    },
+    "sap.ui5": {
+        "flexEnabled": true,
+        "dependencies": {
+            "minUI5Version": "1.82.2",
+            "libs": {
+                "sap.m": {},
+                "sap.ui.core": {},
+                "sap.f": {},
+                "sap.suite.ui.generic.template": {},
+                "sap.ui.comp": {},
+                "sap.ui.generic.app": {},
+                "sap.ui.table": {},
+                "sap.ushell": {}
+            }
+        },
+        "contentDensities": {
+            "compact": true,
+            "cozy": true
+        },
+        "models": {
+            "i18n": {
+                "type": "sap.ui.model.resource.ResourceModel",
+                "settings": {
+                    "bundleName": "bfgmgntappr.workflowuimodule.i18n.i18n"
+                }
+            },
+            "": {
+                "dataSource": "mainService",
+                "preload": true,
+                "settings": {}
+            }
+        },
+        "resources": {
+            "css": [
+                {
+                    "uri": "css/style.css"
+                }
+            ]
+        },
+        "routing": {
+            "config": {
+                "routerClass": "sap.m.routing.Router",
+                "viewType": "XML",
+                "async": true,
+                "viewPath": "bfgmgntappr.workflowuimodule.view",
+                "controlAggregation": "pages",
+                "controlId": "app",
+                "clearControlAggregation": false
+            },
+            "routes": [
+                {
+                    "name": "Routesoautomationapproval",
+                    "pattern": ":?query:",
+                    "target": [
+                        "Targetsoautomationapproval"
+                    ]
+                }
+            ],
+            "targets": {
+                "Targetsoautomationapproval": {
+                    "viewType": "XML",
+                    "transition": "slide",
+                    "clearControlAggregation": false,
+                    "viewId": "soautomationapproval",
+                    "viewName": "soautomationapproval"
+                }
+            }
+        },
+        "rootView": {
+            "viewName": "bfgmgntappr.workflowuimodule.view.App",
+            "type": "XML",
+            "async": true,
+            "id": "App"
+        }
+    },
+    "sap.cloud": {
+        "public": true,
+        "service": "somanagement"
+    },
+    "sap.bpa.task": {
+        "_version": "1.0.0",
+        "outcomes": [
+            {
+                "id": "approve",
+                "label": "Approve"
+            },
+            {
+                "id": "reject",
+                "label": "Reject"
+            }
+        ],
+        "inputs": {
+            "$schema": "http://json-schema.org/draft-07/schema",
+            "title": "input",
+            "type": "object",
+            "required": [],
+            "definitions": {
+                "extractionItems": {
+                    "type": "object",
+                    "required": [],
+                    "properties": {
+                        "rawValue": {
+                            "title": "Raw Value",
+                            "description": "",
+                            "type": "string"
+                        },
+                         "confidence": {
+                            "title": "Confidence",
+                            "description": "",
+                            "type": "number"
+                        },
+                         "name": {
+                            "title": "Name",
+                            "description": "",
+                            "type": "string"
+                        },
+                         "category": {
+                            "title": "Category",
+                            "description": "",
+                            "type": "string"
+                        },
+                         "type": {
+                            "title": "Type",
+                            "description": "",
+                            "type": "string"
+                        }
+                    }
+                },
+                "salesOrderItem": {
+                    "type": "object",
+                    "required": [],
+                    "properties": {
+                        "SalesOrderItem": {
+                            "title": "SalesOrderItem",
+                            "description": "",
+                            "type": "string"
+                        },
+                        "PurchaseOrderByCustomer": {
+                            "title": "PurchaseOrderByCustomer",
+                            "description": "",
+                            "type": "string"
+                        },
+                        "Material": {
+                            "title": "Material",
+                            "description": "",
+                            "type": "string"
+                        },
+                        "ExternalItemID" : {
+                            "title": "ExternalItemID",
+                            "description": "",
+                            "type": "string"
+                        },
+                        "RequestedQuantity": {
+                            "title": "RequestedQuantity",
+                            "description": "",
+                            "type": "string"
+                        },
+                        "RequestedQuantityUnit": {
+                            "title": "RequestedQuantityUnit",
+                            "description": "",
+                            "type": "string"
+                        },
+                        "ProductionPlant": {
+                            "title": "ProductionPlant",
+                            "description": "",
+                            "type": "string"
+                        },
+                        "StorageLocation": {
+                            "title": "StorageLocation",
+                            "description": "",
+                            "type": "string"
+                        },
+                        "ShippingPoint": {
+                            "title": "ShippingPoint",
+                            "description": "",
+                            "type": "string"
+                        },
+                        "NetAmount": {
+                            "title": "NetAmount",
+                            "description": "",
+                            "type": "string"
+                        },
+                        "DeliveryPriority": {
+                            "title": "DeliveryPriority",
+                            "description": "",
+                            "type": "string"
+                        },
+                        "DeliveryDateQuantityIsFixed": {
+                            "title": "DeliveryDateQuantityIsFixed",
+                            "description": "",
+                            "type": "boolean"
+                        },
+                        "MatlAccountAssignmentGroup": {
+                            "title": "MatlAccountAssignmentGroup",
+                            "description": "",
+                            "type": "string"
+                        },
+                        "CustomerPaymentTermsentTerms": {
+                            "title": "CustomerPaymentTermsentTerms",
+                            "description": "",
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "properties": {
+                "headerData": {
+                    "type": "array",
+                    "title": "Header Data",
+                    "description": "Extracted header data of PO",
+                    "items": {
+                        "$ref": "#/definitions/extractionItems"
+                    }
+                },
+                "lineItems": {
+                    "type": "string",
+                    "title": "Line Items",
+                    "description": "String of extracted line items"
+                },
+                "createdDate": {
+                    "type": "string",
+                    "title": "Created Date",
+                    "description": "Created Date"
+                },
+                "fileName": {
+                    "type": "string",
+                    "title": "File Name",
+                    "description": "Name of the uploaded PO file"
+                }
+            }
+        },
+        "outputs": {
+            "$schema": "http://json-schema.org/draft-07/schema",
+            "title": "output",
+            "type": "object",
+            "required": [],
+            "properties": {
+                "headerData": {
+                    "type": "array",
+                    "title": "Header Data",
+                    "description": "Extracted header data of PO",
+                    "items": {
+                        "$ref": "#/definitions/extractionItems"
+                    }
+                },
+                "lineItems": {
+                    "type": "string",
+                    "title": "Line Items",
+                    "description": "String of extracted line items"
+                },
+                "salesOrder": {
+                    "type": "object",
+                    "required": [],
+                    "properties": {
+                        "SalesOrderType": {
+                            "title": "SalesOrderType",
+                            "description": "",
+                            "type": "string"
+                        },
+                        "SalesOrganization": {
+                            "title": "SalesOrganization",
+                            "description": "",
+                            "type": "string"
+                        },
+                        "DistributionChannel": {
+                            "title": "DistributionChannel",
+                            "description": "",
+                            "type": "string"
+                        },
+                        "OrganizationDivision": {
+                            "title": "OrganizationDivision",
+                            "description": "",
+                            "type": "string"
+                        },
+                        "SoldToParty": {
+                            "title": "SoldToParty",
+                            "description": "",
+                            "type": "string"
+                        },
+                        "TotalNetAmount": {
+                            "title": "TotalNetAmount",
+                            "description": "",
+                            "type": "string"
+                        },
+                        "PurchaseOrderByCustomer": {
+                            "title": "PurchaseOrderByCustomer",
+                            "description": "",
+                            "type": "string"
+                        },
+                        "TransactionCurrency": {
+                            "title": "TransactionCurrency",
+                            "description": "",
+                            "type": "string"
+                        },
+                        "RequestedDeliveryDate" : {
+                            "title": "RequestedDeliveryDate",
+                            "description": "",
+                            "type": "string"
+                        },
+                        "CustomerPaymentTerms": {
+                            "title": "CustomerPaymentTerms",
+                            "description": "",
+                            "type": "string"
+                        },
+                        "to_Item": {
+                            "type": "object",
+                            "title": "to_Item",
+                            "properties": {
+                                "results": {
+                                    "type": "array",
+                                    "title": "results",
+                                    "items": {
+                                        "$ref": "#/definitions/salesOrderItem"
+                                    }
+                                }
+                            }
+                        }
+
+                    }
+                }
+            }
+        },
+        "category": "approval"
+    }
+}

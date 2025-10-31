@@ -1,0 +1,92 @@
+_schema-version: "3.2"
+ID: bfgApproval
+version: 0.0.1
+modules:
+- name: bfgApproval-destination-content
+  type: com.sap.application.content
+  requires:
+  - name: bfgApproval-destination-service
+    parameters:
+      content-target: true
+  - name: bfgApproval_html_repo_host
+    parameters:
+      service-key:
+        name: bfgApproval_html_repo_host-key
+  - name: uaa_bfgApproval
+    parameters:
+      service-key:
+        name: uaa_bfgApproval-key
+  parameters:
+    content:
+      subaccount:
+        destinations:
+        - Name: somanagement_bfgApproval_html_repo_host
+          ServiceInstanceName: bfgApproval-html5-app-host-service
+          ServiceKeyName: bfgApproval_html_repo_host-key
+          sap.cloud.service: somanagement
+        - Authentication: OAuth2UserTokenExchange
+          Name: somanagement_uaa_bfgApproval
+          ServiceInstanceName: bfgApproval-xsuaa-service
+          ServiceKeyName: uaa_bfgApproval-key
+          sap.cloud.service: somanagement
+        existing_destinations_policy: ignore
+  build-parameters:
+    no-source: true
+- name: bfgApproval-app-content
+  type: com.sap.application.content
+  path: .
+  requires:
+  - name: bfgApproval_html_repo_host
+    parameters:
+      content-target: true
+  build-parameters:
+    build-result: resources
+    requires:
+    - artifacts:
+      - bfgmgntapprworkflowuimodule.zip
+      name: bfgmgntapprworkflowuimodule
+      target-path: resources/
+- name: bfgmgntapprworkflowuimodule
+  type: html5
+  path: workflow-ui-module
+  build-parameters:
+    build-result: dist
+    builder: custom
+    commands:
+    - npm install
+    - npm run build:cf
+    supported-platforms: []
+resources:
+- name: bfgApproval-destination-service
+  type: org.cloudfoundry.managed-service
+  parameters:
+    config:
+      HTML5Runtime_enabled: true
+      init_data:
+        subaccount:
+          destinations:
+          - Authentication: NoAuthentication
+            Name: ui5
+            ProxyType: Internet
+            Type: HTTP
+            URL: https://ui5.sap.com
+          existing_destinations_policy: update
+      version: 1.0.0
+    service: destination
+    service-name: bfgApproval-destination-service
+    service-plan: lite
+- name: bfgApproval_html_repo_host
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: html5-apps-repo
+    service-name: bfgApproval-html5-app-host-service
+    service-plan: app-host
+- name: uaa_bfgApproval
+  type: org.cloudfoundry.managed-service
+  parameters:
+    path: ./xs-security.json
+    service: xsuaa
+    service-name: bfgApproval-xsuaa-service
+    service-plan: application
+parameters:
+  deploy_mode: html5-repo
