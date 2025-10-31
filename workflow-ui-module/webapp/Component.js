@@ -31,6 +31,7 @@ sap.ui.define(
 
           this.setTaskModels();
 
+          const approveOutcomeId = "approve";
           this.getInboxAPI().addAction(
             {
               action: "APPROVE",
@@ -38,11 +39,12 @@ sap.ui.define(
               type: "accept", // (Optional property) Define for positive appearance
             },
             function () {
-              this.completeTask(true);
+              this.completeTask(true, approveOutcomeId);
             },
             this
           );
 
+          const rejectOutcomeId = "reject";
           this.getInboxAPI().addAction(
             {
               action: "REJECT",
@@ -50,7 +52,7 @@ sap.ui.define(
               type: "reject", // (Optional property) Define for negative appearance
             },
             function () {
-              this.completeTask(false);
+              this.completeTask(false, rejectOutcomeId);
             },
             this
           );
@@ -93,18 +95,18 @@ sap.ui.define(
           return startupParameters.inboxAPI;
         },
 
-        completeTask: function (approvalStatus) {
+        completeTask: function (approvalStatus, outcomeId) {
           this.getModel("context").setProperty("/approved", approvalStatus);
-          this._patchTaskInstance();
+          this._patchTaskInstance(outcomeId);
           this._refreshTaskList();
         },
 
-        _patchTaskInstance: function () {
+        _patchTaskInstance: function (outcomeId) {
           var contextData = this.getModel("context").getData();
-          var enrichment = contextData.enrichment
-          var items = contextData.LineItems.map(item => ({
+          var enrichment = contextData.edit.enrichment
+          var items = contextData.edit.LineItems.map(item => ({
             // SalesOrderItem: "10", // generated ID
-            PurchaseOrderByCustomer: enrichment.partner.id,
+            PurchaseOrderByCustomer: enrichment?.sender?.id,
             Material: item.SupplierMaterialNumber, // TODO enrichment
             ExternalItemID : item.CustomerMaterialNumber,
             RequestedQuantity: item.Quantity,
@@ -121,18 +123,21 @@ sap.ui.define(
 
           var data = {
             status: "COMPLETED",
+            decision: outcomeId,
             context: {
               ...contextData,
+              comment: contextData.comment || '',
+              lineItems: JSON.stringify(contextData.edit.LineItems),
               salesOrder: {
                 "SalesOrderType": "ZNOA", // Constant
                 "SalesOrganization": "1000", // Constant
                 "DistributionChannel": "30", // Constant 30 (externnal) or 50 (internal)
                 "OrganizationDivision": "01", // Constant
-                "SoldToParty": enrichment.partner.id,
+                "SoldToParty": enrichment?.sender?.id,
                 // "TotalNetAmount": undefined, // calculated on S/4 side
-                "PurchaseOrderByCustomer": contextData.documentNumber,
-                "TransactionCurrency": contextData.Currency,
-                "RequestedDeliveryDate" : contextData.deliveryDate,
+                "PurchaseOrderByCustomer": contextData.documentTitle,
+                "TransactionCurrency": contextData.edit.Currency,
+                "RequestedDeliveryDate" : contextData.PurchaseOrderDate,
                 // "CustomerPaymentTerms": "0004", // not mandatory
                 "to_Item": {
                   "results": items
@@ -140,6 +145,8 @@ sap.ui.define(
               }
             }
           };
+
+          delete data.context.edit; // remove edit object before sending
 
           jQuery.ajax({
             url: this._getTaskInstancesBaseURL(),
