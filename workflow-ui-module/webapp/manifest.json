@@ -271,6 +271,101 @@
                     "type": "string",
                     "title": "File Name",
                     "description": "Name of the uploaded PO file"
+                },
+                "enrichment": {
+                    "type": "object",
+                    "required": [],
+                    "properties": {
+                        "sender": {
+                            "title": "Sender",
+                            "description": "",
+                            "type": "object",
+                            "properties": {
+                                "id": {
+                                    "title": "ID",
+                                    "description": "",
+                                    "type": "string"
+                                },
+                                "name": {
+                                    "title": "Name",
+                                    "description": "",
+                                    "type": "string"
+                                },
+                                "accountNumber": {
+                                    "title": "Account Number",
+                                    "description": "",
+                                    "type": "string"
+                                },
+                                "bankAccount": {
+                                    "title": "Bank Account",
+                                    "description": "",
+                                    "type": "string"
+                                },
+                                "email": {
+                                    "title": "Email",
+                                    "description": "",
+                                    "type": "string"
+                                },
+                                "address1": {
+                                    "title": "Address",
+                                    "description": "",
+                                    "type": "string"
+                                },
+                                "countryCode": {
+                                    "title": "Country Code",
+                                    "description": "",
+                                    "type": "string"
+                                },
+                                "state": {
+                                    "title": "State",
+                                    "description": "",
+                                    "type": "string"
+                                },
+                                "city": {
+                                    "title": "City",
+                                    "description": "",
+                                    "type": "string"
+                                },
+                                "postalCode": {
+                                    "title": "Postal Code",
+                                    "description": "",
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "product": {
+                            "title": "Product",
+                            "description": "",
+                            "type": "object",
+                            "properties": {
+                                "id": {
+                                    "title": "ID",
+                                    "description": "",
+                                    "type": "string"
+                                },
+                                "description": {
+                                    "title": "description",
+                                    "description": "",
+                                    "type": "string"
+                                },
+                                "materialNumber": {
+                                    "title": "Material Number",
+                                    "description": "",
+                                    "type": "string"
+                                },
+                                "unitPrice": {
+                                    "title": "Unit Price",
+                                    "description": "",
+                                    "type": "string"
+                                },
+                                "unitOfMeasure": {
+                                    "title": "UnitOfMeasure",
+                                    "description": "",
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
                 }
             }
         },
@@ -278,8 +373,124 @@
             "$schema": "http://json-schema.org/draft-07/schema",
             "title": "output",
             "type": "object",
-            "required": [],
+            "required": [
+                "comment"
+            ],
+            "definitions": {
+                "extractionItems": {
+                    "type": "object",
+                    "required": [],
+                    "properties": {
+                        "rawValue": {
+                            "title": "Raw Value",
+                            "description": "",
+                            "type": "string"
+                        },
+                         "confidence": {
+                            "title": "Confidence",
+                            "description": "",
+                            "type": "number"
+                        },
+                         "name": {
+                            "title": "Name",
+                            "description": "",
+                            "type": "string"
+                        },
+                         "category": {
+                            "title": "Category",
+                            "description": "",
+                            "type": "string"
+                        },
+                         "type": {
+                            "title": "Type",
+                            "description": "",
+                            "type": "string"
+                        }
+                    }
+                },
+                "salesOrderItem": {
+                    "type": "object",
+                    "required": [],
+                    "properties": {
+                        "SalesOrderItem": {
+                            "title": "SalesOrderItem",
+                            "description": "",
+                            "type": "string"
+                        },
+                        "PurchaseOrderByCustomer": {
+                            "title": "PurchaseOrderByCustomer",
+                            "description": "",
+                            "type": "string"
+                        },
+                        "Material": {
+                            "title": "Material",
+                            "description": "",
+                            "type": "string"
+                        },
+                        "ExternalItemID" : {
+                            "title": "ExternalItemID",
+                            "description": "",
+                            "type": "string"
+                        },
+                        "RequestedQuantity": {
+                            "title": "RequestedQuantity",
+                            "description": "",
+                            "type": "string"
+                        },
+                        "RequestedQuantityUnit": {
+                            "title": "RequestedQuantityUnit",
+                            "description": "",
+                            "type": "string"
+                        },
+                        "ProductionPlant": {
+                            "title": "ProductionPlant",
+                            "description": "",
+                            "type": "string"
+                        },
+                        "StorageLocation": {
+                            "title": "StorageLocation",
+                            "description": "",
+                            "type": "string"
+                        },
+                        "ShippingPoint": {
+                            "title": "ShippingPoint",
+                            "description": "",
+                            "type": "string"
+                        },
+                        "NetAmount": {
+                            "title": "NetAmount",
+                            "description": "",
+                            "type": "string"
+                        },
+                        "DeliveryPriority": {
+                            "title": "DeliveryPriority",
+                            "description": "",
+                            "type": "string"
+                        },
+                        "DeliveryDateQuantityIsFixed": {
+                            "title": "DeliveryDateQuantityIsFixed",
+                            "description": "",
+                            "type": "boolean"
+                        },
+                        "MatlAccountAssignmentGroup": {
+                            "title": "MatlAccountAssignmentGroup",
+                            "description": "",
+                            "type": "string"
+                        },
+                        "CustomerPaymentTermsentTerms": {
+                            "title": "CustomerPaymentTermsentTerms",
+                            "description": "",
+                            "type": "string"
+                        }
+                    }
+                }
+            },
             "properties": {
+                "comment": {
+                    "type": "string",
+                    "title": "Comment",
+                    "description": "Comment to buyer"
+                },
                 "headerData": {
                     "type": "array",
                     "title": "Header Data",

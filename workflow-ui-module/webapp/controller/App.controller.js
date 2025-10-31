@@ -29,7 +29,7 @@ sap.ui.define(
           const netAmount = this._val(headerMap, "netAmount");
           const currency = this._val(headerMap, "currencyCode");
 
-          contextData.documentTitle = poNumber ? `Purchase Order ${poNumber}` : "Purchase Order";
+          contextData.documentTitle = poNumber ? `Sales Order ${poNumber}` : "Sales Order";
           contextData.PurchaseOrder = poNumber || "";
           contextData.PurchaseOrderDate = docDate || "";
           contextData.Amount = netAmount || "";
@@ -53,7 +53,7 @@ sap.ui.define(
           // Ship-To
           contextData.ShipTo = this._buildParty("shipTo", headerMap, {
             nameKey: "shipToName",
-            streetKeys: ["shipToHouseNumber", "shipToStreet"],
+            streetKeys: ["shipToStreet", "shipToHouseNumber"],
             cityKey: "shipToCity",
             stateKey: "shipToState",
             postalKey: "shipToPostalCode"
@@ -99,10 +99,12 @@ sap.ui.define(
 
           // Enrichment
           contextData.enrichment = rawData.enrichment
+          this.getOwnerComponent().getModel("context").setProperty("/edit", contextData);
 
           console.log(contextData);
           const model = new JSONModel(contextData);
-          this.getView().setModel(model, "context");
+          this.getView().setModel(model, "viewContextModel");
+          this.getOwnerComponent().setModel(model, "viewData");
         },
 
         _indexHeaderData(headerDataArr) {
