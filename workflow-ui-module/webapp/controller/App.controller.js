@@ -138,13 +138,55 @@ sap.ui.define(
         /**
          * Formatter function to convert confidence values to UI5 state
          * @param {number} confidence - Confidence value (0-1)
-         * @returns {string} - UI5 state: "Warning" for < 0.8, "Success" for >= 0.8
+         * @param {string} value - The actual field value
+         * @returns {string} - UI5 state: "Warning" for < 0.8, "Success" for >= 0.8, "None" for empty values
          */
-        formatConfidenceState: function(confidence) {
+        formatConfidenceState: function(confidence, value) {
+          if (!value || value.toString().trim() === "") {
+            return "None";
+          }
+          
           if (typeof confidence !== 'number') {
             return "Success";
           }
           return confidence < 0.8 ? "Warning" : "Success";
+        },
+
+        /**
+         * Formatter function to convert confidence values to UI5 valueState for Input controls
+         * @param {number} confidence - Confidence value (0-1)
+         * @param {string} value - The actual field value
+         * @returns {string} - UI5 valueState: "Warning" for < 0.8, "Success" for >= 0.8, "None" for empty values
+         */
+        formatConfidenceValueState: function(confidence, value) {
+          if (!value || value.toString().trim() === "") {
+            return "None";
+          }
+          
+          if (typeof confidence !== 'number') {
+            return "Success";
+          }
+          return confidence < 0.8 ? "Warning" : "Success";
+        },
+
+        /**
+         * Formatter function to check if enrichment data exists
+         * @param {object} enrichment - Enrichment object
+         * @param {string} name - Enrichment name
+         * @returns {boolean} - True if enrichment data exists
+         */
+        hasEnrichmentData: function(enrichment, name) {
+          return !!(enrichment && name && name.toString().trim() !== "");
+        },
+
+        /**
+         * Formatter function to check if no enrichment data exists
+         * @param {object} enrichment - Enrichment object
+         * @param {string} name - Enrichment name
+         * @returns {boolean} - True if no enrichment data exists
+         */
+        hasNoEnrichmentData: function(enrichment, name) {
+          return !(enrichment && name && name.toString().trim() !== "");
         },
 
         _cleanPart(str) {
@@ -163,11 +205,30 @@ sap.ui.define(
           const state = this._cleanPart(this._val(headerMap, cfg.stateKey));
           const postal = this._cleanPart(this._val(headerMap, cfg.postalKey));
 
+          // Get confidence data for each field
+          const nameConfidence = cfg.namePreferred ? 
+            this._valWithConfidence(headerMap, cfg.namePreferred).confidence : 
+            this._valWithConfidence(headerMap, cfg.nameKey).confidence;
+          
+          const streetConfidences = (cfg.streetKeys || [])
+            .map(k => this._valWithConfidence(headerMap, k).confidence);
+          const streetConfidence = streetConfidences.length > 0 ? 
+            Math.min(...streetConfidences) : 1.0; // Use lowest confidence for combined fields
+          
+          const cityConfidence = this._valWithConfidence(headerMap, cfg.cityKey).confidence;
+          const stateConfidence = this._valWithConfidence(headerMap, cfg.stateKey).confidence;
+          const postalConfidence = this._valWithConfidence(headerMap, cfg.postalKey).confidence;
+
           return {
             Name: name || fallbackName || "",
             CityState: [city, state].filter(Boolean).join(state && city ? ", " : ""),
             Street: street,
-            PostalCode: postal
+            PostalCode: postal,
+            // Confidence data
+            NameConfidence: nameConfidence,
+            CityStateConfidence: Math.min(cityConfidence, stateConfidence), // Use lowest confidence for combined field
+            StreetConfidence: streetConfidence,
+            PostalCodeConfidence: postalConfidence
           };
         },
 
@@ -199,6 +260,8 @@ sap.ui.define(
 
           return arr.map(li => {
             const get = (o, k) => (o && o[k] && o[k].rawValue) ? o[k].rawValue : "";
+            const getConfidence = (o, k) => (o && o[k] && typeof o[k].confidence === 'number') ? o[k].confidence : 1.0;
+            
             return {
               Description: get(li, "description"),
               NetAmount: get(li, "netAmount"),
@@ -209,7 +272,18 @@ sap.ui.define(
               CurrencyCode: get(li, "currencyCode"),
               SupplierMaterialNumber: get(li, "supplierMaterialNumber"),
               CustomerMaterialNumber: get(li, "customerMaterialNumber"),
-              UnitOfMeasure: get(li, "unitOfMeasure")
+              UnitOfMeasure: get(li, "unitOfMeasure"),
+              // Confidence data
+              DescriptionConfidence: getConfidence(li, "description"),
+              NetAmountConfidence: getConfidence(li, "netAmount"),
+              QuantityConfidence: getConfidence(li, "quantity"),
+              UnitPriceConfidence: getConfidence(li, "unitPrice"),
+              DocumentDateConfidence: getConfidence(li, "documentDate"),
+              ItemNumberConfidence: getConfidence(li, "itemNumber"),
+              CurrencyCodeConfidence: getConfidence(li, "currencyCode"),
+              SupplierMaterialNumberConfidence: getConfidence(li, "supplierMaterialNumber"),
+              CustomerMaterialNumberConfidence: getConfidence(li, "customerMaterialNumber"),
+              UnitOfMeasureConfidence: getConfidence(li, "unitOfMeasure")
             };
           });
         }
