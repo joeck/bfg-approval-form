@@ -106,7 +106,7 @@ sap.ui.define(
           var enrichment = contextData.edit.enrichment
           var items = contextData.edit.LineItems.map(item => ({
             // SalesOrderItem: "10", // generated ID
-            PurchaseOrderByCustomer: enrichment?.sender?.id,
+            PurchaseOrderByCustomer: contextData.edit.PurchaseOrder,
             Material: item.SupplierMaterialNumber, // TODO enrichment
             ExternalItemID : item.CustomerMaterialNumber,
             RequestedQuantity: item.Quantity,
@@ -135,9 +135,9 @@ sap.ui.define(
                 "OrganizationDivision": "01", // Constant
                 "SoldToParty": enrichment?.sender?.id,
                 // "TotalNetAmount": undefined, // calculated on S/4 side
-                "PurchaseOrderByCustomer": contextData.documentTitle,
+                "PurchaseOrderByCustomer": contextData.edit.PurchaseOrder,
                 "TransactionCurrency": contextData.edit.Currency,
-                "RequestedDeliveryDate" : contextData.PurchaseOrderDate,
+                "RequestedDeliveryDate" : this._convertDDMMYYYYToMSJSONDate(contextData.edit.PurchaseOrderDate),
                 // "CustomerPaymentTerms": "0004", // not mandatory
                 "to_Item": {
                   "results": items
@@ -179,6 +179,106 @@ sap.ui.define(
 
         _refreshTaskList: function () {
           this.getInboxAPI().updateTask("NA", this.getTaskInstanceID());
+        },
+
+        /**
+         * Converts a date string from various Swiss formats to Microsoft JSON date format \/Date(timestamp)\/
+         * Supports formats: 
+         * - DD.MM.YYYY, DD/MM/YYYY, DD-MM-YYYY, DD.MM.YY, DD/MM/YY, DD-MM-YY
+         * - DD. Monat YYYY, DD Monat YYYY (e.g., "21. Oktober 2025", "21 Okt 2025")
+         * - YYYY-MM-DD, YYYY/MM/DD, YYYY.MM.DD (ISO and variants)
+         * @param {string} dateString - Date string in various Swiss formats
+         * @returns {string|null} - Microsoft JSON date format "\/Date(timestamp)\/" or null if invalid
+         */
+        _convertDDMMYYYYToMSJSONDate: function (dateString) {
+          if (!dateString) {
+            return null;
+          }
+          
+          try {
+            const trimmedDate = dateString.trim();
+            
+            // German/Swiss month names mapping
+            const monthNames = {
+              'januar': 0, 'jan': 0, 'jänner': 0,
+              'februar': 1, 'feb': 1, 'feber': 1,
+              'märz': 2, 'mär': 2, 'maerz': 2,
+              'april': 3, 'apr': 3,
+              'mai': 4,
+              'juni': 5, 'jun': 5,
+              'juli': 6, 'jul': 6,
+              'august': 7, 'aug': 7,
+              'september': 8, 'sep': 8, 'sept': 8,
+              'oktober': 9, 'okt': 9,
+              'november': 10, 'nov': 10,
+              'dezember': 11, 'dez': 11
+            };
+            
+            let day, month, year;
+            
+            // Check for written month formats (DD. Monat YYYY or DD Monat YYYY)
+            const writtenMonthPattern = /^(\d{1,2})\.?\s+(\w+)\s+(\d{2,4})$/i;
+            const writtenMonthMatch = trimmedDate.match(writtenMonthPattern);
+            
+            if (writtenMonthMatch) {
+              day = parseInt(writtenMonthMatch[1], 10);
+              const monthName = writtenMonthMatch[2].toLowerCase();
+              month = monthNames[monthName];
+              year = parseInt(writtenMonthMatch[3], 10);
+              
+              if (month === undefined) {
+                return null; // Unknown month name
+              }
+            }
+            // Check for YYYY-first formats (YYYY-MM-DD, YYYY/MM/DD, YYYY.MM.DD)
+            else if (/^\d{4}[\.\-\/]\d{1,2}[\.\-\/]\d{1,2}$/.test(trimmedDate)) {
+              const yearFirstParts = trimmedDate.split(/[\.\-\/]/);
+              year = parseInt(yearFirstParts[0], 10);
+              month = parseInt(yearFirstParts[1], 10) - 1; // 0-based
+              day = parseInt(yearFirstParts[2], 10);
+            }
+            // Standard DD.MM.YYYY formats with various separators
+            else {
+              // Normalize separators to dots
+              let normalizedDate = trimmedDate.replace(/[\/\-]/g, '.');
+              const parts = normalizedDate.split('.');
+              
+              if (parts.length !== 3) {
+                return null;
+              }
+              
+              day = parseInt(parts[0], 10);
+              month = parseInt(parts[1], 10) - 1; // 0-based
+              year = parseInt(parts[2], 10);
+            }
+            
+            // Handle 2-digit years (always assume 21st century: 2000-2099)
+            if (year < 100) {
+              year += 2000;
+            }
+            
+            // Validate the parsed values
+            if (isNaN(day) || isNaN(month) || isNaN(year) || 
+                day < 1 || day > 31 || month < 0 || month > 11 || year < 1900 || year > 2100) {
+              return null;
+            }
+            
+            // Create date object
+            const date = new Date(year, month, day);
+            if (isNaN(date.getTime())) {
+              return null;
+            }
+            
+            // Additional validation: check if the date is valid (e.g., not Feb 30th)
+            if (date.getDate() !== day || date.getMonth() !== month || date.getFullYear() !== year) {
+              return null;
+            }
+            
+            const timestamp = date.getTime();
+            return "\\/Date(" + timestamp + ")\\/";
+          } catch (e) {
+            return null;
+          }
         },
       }
     );
