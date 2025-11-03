@@ -23,17 +23,23 @@ sap.ui.define(
           const headerMap = this._indexHeaderData(rawData.headerData || []);
           const contextData = {};
 
-          // Header level
-          const poNumber = this._val(headerMap, "documentNumber");
-          const docDate = this._val(headerMap, "documentDate");
-          const netAmount = this._val(headerMap, "netAmount");
-          const currency = this._val(headerMap, "currencyCode");
+          // Header level with confidence data
+          const poNumberData = this._valWithConfidence(headerMap, "documentNumber");
+          const docDateData = this._valWithConfidence(headerMap, "documentDate");
+          const netAmountData = this._valWithConfidence(headerMap, "netAmount");
+          const currencyData = this._valWithConfidence(headerMap, "currencyCode");
 
-          contextData.documentTitle = poNumber ? `Sales Order ${poNumber}` : "Sales Order";
-          contextData.PurchaseOrder = poNumber || "";
-          contextData.PurchaseOrderDate = docDate || "";
-          contextData.Amount = netAmount || "";
-          contextData.Currency = currency || "";
+          contextData.documentTitle = poNumberData.rawValue ? `Sales Order ${poNumberData.rawValue}` : "Sales Order";
+          contextData.PurchaseOrder = poNumberData.rawValue || "";
+          contextData.PurchaseOrderDate = docDateData.rawValue || "";
+          contextData.Amount = netAmountData.rawValue || "";
+          contextData.Currency = currencyData.rawValue || "";
+
+          // Add confidence data for header fields
+          contextData.PurchaseOrderConfidence = poNumberData.confidence;
+          contextData.PurchaseOrderDateConfidence = docDateData.confidence;
+          contextData.AmountConfidence = netAmountData.confidence;
+          contextData.CurrencyConfidence = currencyData.confidence;
 
           // Sold-To (sender)
           contextData.SoldTo = this._buildParty("sender", headerMap, {
@@ -60,16 +66,16 @@ sap.ui.define(
           });
 
           // Comments
-          const commentRaw = this._val(headerMap, "comment");
-          if (commentRaw && typeof commentRaw === "string") {
-            const lines = commentRaw
-              .split(/\r?\n/)
-              .map(l => l.trim())
-              .filter(l => l.length);
-            contextData.Comments = lines.length > 1 ? lines : commentRaw; // array or single string
-          } else {
-            contextData.Comments = "";
-          }
+          // const commentRaw = this._val(headerMap, "comment");
+          // if (commentRaw && typeof commentRaw === "string") {
+          //   const lines = commentRaw
+          //     .split(/\r?\n/)
+          //     .map(l => l.trim())
+          //     .filter(l => l.length);
+          //   contextData.Comments = lines.length > 1 ? lines : commentRaw; // array or single string
+          // } else {
+          //   contextData.Comments = "";
+          // }
 
           // Line Items
           contextData.LineItems = this._mapLineItems(rawData.lineItems);
@@ -108,17 +114,37 @@ sap.ui.define(
         },
 
         _indexHeaderData(headerDataArr) {
-          // Map name -> rawValue (last wins if duplicates)
+          // Map name -> full object (including rawValue and confidence)
           return headerDataArr.reduce((acc, item) => {
             if (item && item.name) {
-              acc[item.name] = item.rawValue;
+              acc[item.name] = {
+                rawValue: item.rawValue,
+                confidence: item.confidence || 1.0 // default to 1.0 if missing
+              };
             }
             return acc;
           }, {});
         },
 
         _val(headerMap, key) {
-          return headerMap[key] || "";
+          const item = headerMap[key];
+          return item ? item.rawValue || "" : "";
+        },
+
+        _valWithConfidence(headerMap, key) {
+          return headerMap[key] || { rawValue: "", confidence: 1.0 };
+        },
+
+        /**
+         * Formatter function to convert confidence values to UI5 state
+         * @param {number} confidence - Confidence value (0-1)
+         * @returns {string} - UI5 state: "Warning" for < 0.8, "Success" for >= 0.8
+         */
+        formatConfidenceState: function(confidence) {
+          if (typeof confidence !== 'number') {
+            return "Success";
+          }
+          return confidence < 0.8 ? "Warning" : "Success";
         },
 
         _cleanPart(str) {

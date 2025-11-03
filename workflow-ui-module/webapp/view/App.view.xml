@@ -36,17 +36,21 @@
                 >
                     <VBox id="_IDGenVBox1">
                         <Label id="_IDGenLabel" text="Purchase Order" />
-                        <ObjectAttribute id="_IDGenObjectAttribute" text="{viewContextModel>/PurchaseOrder}" />
+                        <ObjectStatus id="_IDGenObjectStatus1" 
+                            text="{viewContextModel>/PurchaseOrder}"
+                            state="{path: 'viewContextModel>/PurchaseOrderConfidence', formatter: '.formatConfidenceState'}" />
                     </VBox>
                     <VBox id="_IDGenVBox2">
                         <Label id="_IDGenLabel1" text="Amount" />
                         <ObjectStatus id="_IDGenObjectStatus" 
-                            state="None"
+                            state="{path: 'viewContextModel>/AmountConfidence', formatter: '.formatConfidenceState'}"
                             text="{viewContextModel>/Amount} {viewContextModel>/Currency}"/>
                     </VBox>
                     <VBox id="_IDGenVBox3">
                         <Label id="_IDGenLabel2" text="Purchase Order Date" />
-                        <ObjectAttribute id="_IDGenObjectAttribute2" text="{viewContextModel>/PurchaseOrderDate}" />
+                        <ObjectStatus id="_IDGenObjectStatus2" 
+                            text="{viewContextModel>/PurchaseOrderDate}"
+                            state="{path: 'viewContextModel>/PurchaseOrderDateConfidence', formatter: '.formatConfidenceState'}" />
                     </VBox>
                 </layout:Grid>
             </uxap:headerContent>
