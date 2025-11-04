@@ -115,8 +115,8 @@ sap.ui.define(
             // StorageLocation: "6020", // determined by material number 
             // ShippingPoint: "5205", // determined by material number 
             // NetAmount: "500.00", // calculated by pricing terms
-            DeliveryPriority: "",
-            DeliveryDateQuantityIsFixed: false,
+            // DeliveryPriority: "",
+            // DeliveryDateQuantityIsFixed: false,
             // MatlAccountAssignmentGroup: "03", // not mandatory
             // CustomerPaymentTerms: "0004" // not mandatory
           }))
@@ -133,11 +133,11 @@ sap.ui.define(
                 "SalesOrganization": "1000", // Constant
                 "DistributionChannel": "30", // Constant 30 (externnal) or 50 (internal)
                 "OrganizationDivision": "01", // Constant
-                "SoldToParty": enrichment?.sender?.id,
+                "SoldToParty": enrichment?.sender?.id || contextData.edit.SoldTo.ID,
                 // "TotalNetAmount": undefined, // calculated on S/4 side
                 "PurchaseOrderByCustomer": contextData.edit.PurchaseOrder,
                 "TransactionCurrency": contextData.edit.Currency,
-                "RequestedDeliveryDate" : this._convertDDMMYYYYToMSJSONDate(contextData.edit.PurchaseOrderDate),
+                "RequestedDeliveryDate" : this._convertDDMMYYYYToMSJSONDate(contextData.edit.DeliveryDate),
                 // "CustomerPaymentTerms": "0004", // not mandatory
                 "to_Item": {
                   "results": items
@@ -188,11 +188,11 @@ sap.ui.define(
          * - DD. Monat YYYY, DD Monat YYYY (e.g., "21. Oktober 2025", "21 Okt 2025")
          * - YYYY-MM-DD, YYYY/MM/DD, YYYY.MM.DD (ISO and variants)
          * @param {string} dateString - Date string in various Swiss formats
-         * @returns {string|null} - Microsoft JSON date format "\/Date(timestamp)\/" or null if invalid
+         * @returns {string|null} - Microsoft JSON date format "\/Date(timestamp)\/" or "" if invalid
          */
         _convertDDMMYYYYToMSJSONDate: function (dateString) {
           if (!dateString) {
-            return null;
+            return "";
           }
           
           try {
@@ -227,7 +227,7 @@ sap.ui.define(
               year = parseInt(writtenMonthMatch[3], 10);
               
               if (month === undefined) {
-                return null; // Unknown month name
+                return ""; // Unknown month name
               }
             }
             // Check for YYYY-first formats (YYYY-MM-DD, YYYY/MM/DD, YYYY.MM.DD)
@@ -244,7 +244,7 @@ sap.ui.define(
               const parts = normalizedDate.split('.');
               
               if (parts.length !== 3) {
-                return null;
+                return "";
               }
               
               day = parseInt(parts[0], 10);
@@ -260,24 +260,24 @@ sap.ui.define(
             // Validate the parsed values
             if (isNaN(day) || isNaN(month) || isNaN(year) || 
                 day < 1 || day > 31 || month < 0 || month > 11 || year < 1900 || year > 2100) {
-              return null;
+              return "";
             }
             
             // Create date object
             const date = new Date(year, month, day);
             if (isNaN(date.getTime())) {
-              return null;
+              return "";
             }
             
             // Additional validation: check if the date is valid (e.g., not Feb 30th)
             if (date.getDate() !== day || date.getMonth() !== month || date.getFullYear() !== year) {
-              return null;
+              return "";
             }
             
             const timestamp = date.getTime();
             return "\\/Date(" + timestamp + ")\\/";
           } catch (e) {
-            return null;
+            return "";
           }
         },
       }

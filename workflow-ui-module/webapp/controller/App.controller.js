@@ -28,18 +28,21 @@ sap.ui.define(
           const docDateData = this._valWithConfidence(headerMap, "documentDate");
           const netAmountData = this._valWithConfidence(headerMap, "netAmount");
           const currencyData = this._valWithConfidence(headerMap, "currencyCode");
+          const deliveryDate = this._valWithConfidence(headerMap, "deliveryDate");
 
           contextData.documentTitle = poNumberData.rawValue ? `Sales Order ${poNumberData.rawValue}` : "Sales Order";
           contextData.PurchaseOrder = poNumberData.rawValue || "";
           contextData.PurchaseOrderDate = docDateData.rawValue || "";
           contextData.Amount = netAmountData.rawValue || "";
           contextData.Currency = currencyData.rawValue || "";
+          contextData.DeliveryDate = deliveryDate.rawValue || "";
 
           // Add confidence data for header fields
           contextData.PurchaseOrderConfidence = poNumberData.confidence;
           contextData.PurchaseOrderDateConfidence = docDateData.confidence;
           contextData.AmountConfidence = netAmountData.confidence;
           contextData.CurrencyConfidence = currencyData.confidence;
+          contextData.DeliveryDateConfidence = deliveryDate.confidence;
 
           // Sold-To (sender)
           contextData.SoldTo = this._buildParty("sender", headerMap, {
@@ -189,6 +192,58 @@ sap.ui.define(
           return !(enrichment && name && name.toString().trim() !== "");
         },
 
+        /**
+         * Dynamic SoldTo title formatter
+         * @param {object} enrichment - Enrichment object
+         * @param {string} name - Enrichment name
+         * @returns {string} - Dynamic title text
+         */
+        getSoldToTitle: function(enrichment, name) {
+          if (enrichment && name && name.toString().trim() !== "") {
+            return "Sold-To (S/4 Master Data)";
+          }
+          return "Sold-To";
+        },
+
+        /**
+         * Dynamic SoldTo icon formatter
+         * @param {object} enrichment - Enrichment object
+         * @param {string} name - Enrichment name
+         * @returns {string} - Icon name
+         */
+        getSoldToIcon: function(enrichment, name) {
+          if (enrichment && name && name.toString().trim() !== "") {
+            return "sap-icon://accept";
+          }
+          return "sap-icon://warning";
+        },
+
+        /**
+         * Dynamic SoldTo icon color formatter
+         * @param {object} enrichment - Enrichment object
+         * @param {string} name - Enrichment name
+         * @returns {string} - Icon color
+         */
+        getSoldToIconColor: function(enrichment, name) {
+          if (enrichment && name && name.toString().trim() !== "") {
+            return "#2B7D2B"; // Green for success
+          }
+          return "#E9730C"; // Orange for warning
+        },
+
+        /**
+         * Dynamic SoldTo tooltip formatter
+         * @param {object} enrichment - Enrichment object
+         * @param {string} name - Enrichment name
+         * @returns {string} - Tooltip text
+         */
+        getSoldToTooltip: function(enrichment, name) {
+          if (enrichment && name && name.toString().trim() !== "") {
+            return "Master data found in S/4 system";
+          }
+          return "No master data found in S/4 system - please verify data";
+        },
+
         _cleanPart(str) {
           return (str || "").toString().replace(/[,\s]+$/g, "").trim();
         },
@@ -237,7 +292,7 @@ sap.ui.define(
             ID: enrichmentData.id,
             Name: enrichmentData.name,
             CityState: [enrichmentData.city, enrichmentData.state].filter(Boolean).join(enrichmentData.state && enrichmentData.city ? ", " : ""),
-            Street: enrichmentData.Adress1,
+            Street: enrichmentData.address1,
             PostalCode: enrichmentData.postalCode
           };
         },
@@ -259,7 +314,7 @@ sap.ui.define(
           }
 
           return arr.map(li => {
-            const get = (o, k) => (o && o[k] && o[k].rawValue) ? o[k].rawValue : "";
+            const get = (o, k) => (o && o[k] && o[k].value) ? o[k].value : (o && o[k] && o[k].rawValue) ? o[k].rawValue : "";
             const getConfidence = (o, k) => (o && o[k] && typeof o[k].confidence === 'number') ? o[k].confidence : 1.0;
             
             return {

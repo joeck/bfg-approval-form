@@ -20,7 +20,7 @@
                     <uxap:expandedHeading>
                         <Title
                             id="title"
-                            text="{viewContextModel>/documentTitle}"
+                            text="{context>/edit/documentTitle}"
                             wrapping="true"
                         />
                     </uxap:expandedHeading>
@@ -35,32 +35,37 @@
                     class="sapUiResponsiveMargin"
                 >
                     <VBox id="_IDGenVBox1">
-                        <Label id="_IDGenLabel" text="Purchase Order" />
+                        <Label id="_IDGenLabel" text="Sales Order" />
                         <Input id="_IDGenInput_PO"
-                            value="{viewContextModel>/PurchaseOrder}"
-                            valueState="{parts: ['viewContextModel>/PurchaseOrderConfidence', 'viewContextModel>/PurchaseOrder'], formatter: '.formatConfidenceValueState'}"
+                            value="{context>/edit/PurchaseOrder}"
+                            valueState="{parts: ['context>/edit/PurchaseOrderConfidence', 'context>/edit/PurchaseOrder'], formatter: '.formatConfidenceValueState'}"
                         />
                     </VBox>
                     <VBox id="_IDGenVBox2">
                         <Label id="_IDGenLabel1" text="Amount" />
                         <HBox id="_IDGenHBoxAmountCurrency">
                             <Input id="_IDGenInput_Amount"
-                                value="{viewContextModel>/Amount}"
-                                valueState="{parts: ['viewContextModel>/AmountConfidence', 'viewContextModel>/Amount'], formatter: '.formatConfidenceValueState'}"
+                                value="{context>/edit/Amount}"
+                                valueState="{parts: ['context>/edit/AmountConfidence', 'context>/edit/Amount'], formatter: '.formatConfidenceValueState'}"
                                 width="70%"
                             />
                             <Input id="_IDGenInput_Currency"
-                                value="{viewContextModel>/Currency}"
-                                valueState="{parts: ['viewContextModel>/CurrencyConfidence', 'viewContextModel>/Currency'], formatter: '.formatConfidenceValueState'}"
+                                value="{context>/edit/Currency}"
+                                valueState="{parts: ['context>/edit/CurrencyConfidence', 'context>/edit/Currency'], formatter: '.formatConfidenceValueState'}"
                                 width="30%"
                             />
                         </HBox>
                     </VBox>
                     <VBox id="_IDGenVBox3">
-                        <Label id="_IDGenLabel2" text="Purchase Order Date" />
+                        <Label id="_IDGenLabel2" text="Sales Order Date" />
                         <Input id="_IDGenInput_PODate"
-                            value="{viewContextModel>/PurchaseOrderDate}"
-                            valueState="{parts: ['viewContextModel>/PurchaseOrderDateConfidence', 'viewContextModel>/PurchaseOrderDate'], formatter: '.formatConfidenceValueState'}"
+                            value="{context>/edit/PurchaseOrderDate}"
+                            valueState="{parts: ['context>/edit/PurchaseOrderDateConfidence', 'context>/edit/PurchaseOrderDate'], formatter: '.formatConfidenceValueState'}"
+                        />
+                        <Label id="_IDGenLabel3" text="Delivery Date" />
+                        <Input id="_IDGenInput_DeliveryDate"
+                            value="{context>/edit/DeliveryDate}"
+                            valueState="{parts: ['context>/edit/DeliveryDateConfidence', 'context>/edit/DeliveryDate'], formatter: '.formatConfidenceValueState'}"
                         />
                     </VBox>
                 </layout:Grid>
@@ -85,26 +90,27 @@
                                         defaultSpan="L6 M12 S12"
                                         class="sapUiLargeMarginTop"
                                     >
-                                        <!-- Sold-To Section with Enrichment (S/4 Master Data) -->
-                                        <VBox id="_IDGenVBox35"
-                                            class="sapUiMediumMarginEnd sapUiMediumMarginBottom"
-                                            visible="{parts: ['viewContextModel>/SoldTo/Enrichment', 'viewContextModel>/SoldTo/Enrichment/Name'], formatter: '.hasEnrichmentData'}"
+                                        <!-- Consolidated Sold-To Section -->
+                                        <VBox id="_IDGenVBoxSoldTo"
+                                            class="sapUiMediumMarginBottom"
                                         >
-                                            <HBox id="_IDGenHBoxEnrichmentTitle" class="sapUiMediumMarginBottom">
-                                                <Title id="_IDGenTitle3"
-                                                    text="Sold-To (S/4 Master Data)"
+                                            <!-- Dynamic Title with Icon -->
+                                            <HBox id="_IDGenHBoxSoldToHeader" class="sapUiMediumMarginBottom">
+                                                <Title id="_IDGenTitleSoldTo"
+                                                    text="{parts: ['context>/edit/SoldTo/Enrichment', 'context>/edit/SoldTo/Enrichment/Name'], formatter: '.getSoldToTitle'}"
                                                     level="H3"
                                                 />
-                                                <core:Icon id="_IDGenIconSuccess"
-                                                    src="sap-icon://accept"
-                                                    color="#2B7D2B"
+                                                <core:Icon id="_IDGenIconSoldTo"
+                                                    src="{parts: ['context>/edit/SoldTo/Enrichment', 'context>/edit/SoldTo/Enrichment/Name'], formatter: '.getSoldToIcon'}"
+                                                    color="{parts: ['context>/edit/SoldTo/Enrichment', 'context>/edit/SoldTo/Enrichment/Name'], formatter: '.getSoldToIconColor'}"
                                                     class="sapUiTinyMarginBegin"
-                                                    tooltip="Master data found in S/4 system"
+                                                    tooltip="{parts: ['context>/edit/SoldTo/Enrichment', 'context>/edit/SoldTo/Enrichment/Name'], formatter: '.getSoldToTooltip'}"
                                                 />
                                             </HBox>
 
+                                            <!-- Sold-To Section -->
                                             <f:SimpleForm
-                                                id="soldToFormEnrichment"
+                                                id="soldToFormConsolidated"
                                                 editable="false"
                                                 layout="ResponsiveGridLayout"
                                                 labelSpanXL="4"
@@ -122,92 +128,74 @@
                                                 singleContainerFullSize="false"
                                             >
                                                 <f:content>
-                                                    <Label id="_IDGenLabelEnrichName" text="Name" />
-                                                    <ObjectStatus id="_IDGenEnrichmentName"
-                                                        text="{viewContextModel>/SoldTo/Enrichment/Name}"
-                                                        state="Success"
+                                                    <Label id="_IDGenLabelSoldToID" text="ID" />
+                                                    <!-- Show enrichment data (read-only) or editable input -->
+                                                    <Input id="_IDGenSoldToIDEnrich"
+                                                        value="{context>/edit/SoldTo/Enrichment/ID}"
+                                                        valueState="Success"
+                                                        editable="false"
+                                                        visible="{parts: ['context>/edit/SoldTo/Enrichment', 'context>/edit/SoldTo/Enrichment/ID'], formatter: '.hasEnrichmentData'}"
+                                                    />
+                                                    <Input id="_IDGenSoldToIDInput"
+                                                        value="{context>/edit/SoldTo/ID}"
+                                                        valueState="Warning"
+                                                        visible="{parts: ['context>/edit/SoldTo/Enrichment', 'context>/edit/SoldTo/Enrichment/ID'], formatter: '.hasNoEnrichmentData'}"
                                                     />
 
-                                                    <Label id="_IDGenLabelEnrichCity" text="City, State" />
-                                                    <ObjectStatus id="_IDGenEnrichmentCity"
-                                                        text="{viewContextModel>/SoldTo/Enrichment/CityState}"
-                                                        state="Success"
+                                                    <Label id="_IDGenLabelSoldToName" text="Name" />
+                                                    <!-- Show enrichment data (read-only) or editable input -->
+                                                    <Input id="_IDGenSoldToNameEnrich"
+                                                        value="{context>/edit/SoldTo/Enrichment/Name}"
+                                                        valueState="Success"
+                                                        editable="false"
+                                                        visible="{parts: ['context>/edit/SoldTo/Enrichment', 'context>/edit/SoldTo/Enrichment/Name'], formatter: '.hasEnrichmentData'}"
+                                                    />
+                                                    <Input id="_IDGenSoldToNameInput"
+                                                        value="{context>/edit/SoldTo/Name}"
+                                                        valueState="{parts: ['context>/edit/SoldTo/NameConfidence', 'context>/edit/SoldTo/Name'], formatter: '.formatConfidenceValueState'}"
+                                                        visible="{parts: ['context>/edit/SoldTo/Enrichment', 'context>/edit/SoldTo/Enrichment/Name'], formatter: '.hasNoEnrichmentData'}"
                                                     />
 
-                                                    <Label id="_IDGenLabelEnrichStreet" text="Street" />
-                                                    <ObjectStatus id="_IDGenEnrichmentStreet"
-                                                        text="{viewContextModel>/SoldTo/Enrichment/Street}"
-                                                        state="Success"
+                                                    <Label id="_IDGenLabelSoldToCity" text="City, State" />
+                                                    <!-- Show enrichment data (read-only) or editable input -->
+                                                    <Input id="_IDGenSoldToCityEnrich"
+                                                        value="{context>/edit/SoldTo/Enrichment/CityState}"
+                                                        valueState="Success"
+                                                        editable="false"
+                                                        visible="{parts: ['context>/edit/SoldTo/Enrichment', 'context>/edit/SoldTo/Enrichment/Name'], formatter: '.hasEnrichmentData'}"
+                                                    />
+                                                    <Input id="_IDGenSoldToCityInput"
+                                                        value="{context>/edit/SoldTo/CityState}"
+                                                        valueState="{parts: ['context>/edit/SoldTo/CityStateConfidence', 'context>/edit/SoldTo/CityState'], formatter: '.formatConfidenceValueState'}"
+                                                        visible="{parts: ['context>/edit/SoldTo/Enrichment', 'context>/edit/SoldTo/Enrichment/Name'], formatter: '.hasNoEnrichmentData'}"
                                                     />
 
-                                                    <Label id="_IDGenLabelEnrichPostal" text="Postal Code" />
-                                                    <ObjectStatus id="_IDGenEnrichmentPostal"
-                                                        text="{viewContextModel>/SoldTo/Enrichment/PostalCode}"
-                                                        state="Success"
+                                                    <Label id="_IDGenLabelSoldToStreet" text="Street" />
+                                                    <!-- Show enrichment data (read-only) or editable input -->
+                                                    <Input id="_IDGenSoldToStreetEnrich"
+                                                        value="{context>/edit/SoldTo/Enrichment/Street}"
+                                                        valueState="Success"
+                                                        editable="false"
+                                                        visible="{parts: ['context>/edit/SoldTo/Enrichment', 'context>/edit/SoldTo/Enrichment/Name'], formatter: '.hasEnrichmentData'}"
                                                     />
-                                                </f:content>
-                                            </f:SimpleForm>
-                                        </VBox>
-
-                                        <!-- Sold-To Section (Editable when no master data) -->
-                                        <VBox id="_IDGenVBox15"
-                                            class="sapUiMediumMarginEnd sapUiMediumMarginBottom"
-                                            visible="{parts: ['viewContextModel>/SoldTo/Enrichment', 'viewContextModel>/SoldTo/Enrichment/Name'], formatter: '.hasNoEnrichmentData'}"
-                                        >
-                                            <HBox id="_IDGenHBoxSoldToTitle" class="sapUiMediumMarginBottom">
-                                                <Title id="_IDGenTitle11"
-                                                    text="Sold-To"
-                                                    level="H3"
-                                                />
-                                                <core:Icon id="_IDGenIconWarning"
-                                                    src="sap-icon://warning"
-                                                    color="#E9730C"
-                                                    class="sapUiTinyMarginBegin"
-                                                    tooltip="No master data found in S/4 system - please verify data"
-                                                />
-                                            </HBox>
-
-                                            <f:SimpleForm
-                                                id="soldToForm1"
-                                                editable="true"
-                                                layout="ResponsiveGridLayout"
-                                                labelSpanXL="4"
-                                                labelSpanL="4"
-                                                labelSpanM="12"
-                                                labelSpanS="12"
-                                                adjustLabelSpan="false"
-                                                emptySpanXL="0"
-                                                emptySpanL="0"
-                                                emptySpanM="0"
-                                                emptySpanS="0"
-                                                columnsXL="2"
-                                                columnsL="2"
-                                                columnsM="1"
-                                                singleContainerFullSize="false"
-                                            >
-                                                <f:content>
-                                                    <Label id="_IDGenLabel31" text="Name" />
-                                                    <Input id="_IDGenInput_SoldToName"
-                                                        value="{viewContextModel>/SoldTo/Name}"
-                                                        valueState="{parts: ['viewContextModel>/SoldTo/NameConfidence', 'viewContextModel>/SoldTo/Name'], formatter: '.formatConfidenceValueState'}"
+                                                    <Input id="_IDGenSoldToStreetInput"
+                                                        value="{context>/edit/SoldTo/Street}"
+                                                        valueState="{parts: ['context>/edit/SoldTo/StreetConfidence', 'context>/edit/SoldTo/Street'], formatter: '.formatConfidenceValueState'}"
+                                                        visible="{parts: ['context>/edit/SoldTo/Enrichment', 'context>/edit/SoldTo/Enrichment/Name'], formatter: '.hasNoEnrichmentData'}"
                                                     />
 
-                                                    <Label id="_IDGenLabel41" text="City, State" />
-                                                    <Input id="_IDGenInput_SoldToCityState"
-                                                        value="{viewContextModel>/SoldTo/CityState}"
-                                                        valueState="{parts: ['viewContextModel>/SoldTo/CityStateConfidence', 'viewContextModel>/SoldTo/CityState'], formatter: '.formatConfidenceValueState'}"
+                                                    <Label id="_IDGenLabelSoldToPostal" text="Postal Code" />
+                                                    <!-- Show enrichment data (read-only) or editable input -->
+                                                    <Input id="_IDGenSoldToPostalEnrich"
+                                                        value="{context>/edit/SoldTo/Enrichment/PostalCode}"
+                                                        valueState="Success"
+                                                        editable="false"
+                                                        visible="{parts: ['context>/edit/SoldTo/Enrichment', 'context>/edit/SoldTo/Enrichment/Name'], formatter: '.hasEnrichmentData'}"
                                                     />
-
-                                                    <Label id="_IDGenLabel5" text="Street" />
-                                                    <Input id="_IDGenInput_SoldToStreet"
-                                                        value="{viewContextModel>/SoldTo/Street}"
-                                                        valueState="{parts: ['viewContextModel>/SoldTo/StreetConfidence', 'viewContextModel>/SoldTo/Street'], formatter: '.formatConfidenceValueState'}"
-                                                    />
-
-                                                    <Label id="_IDGenLabel6" text="Postal Code" />
-                                                    <Input id="_IDGenInput_SoldToPostal"
-                                                        value="{viewContextModel>/SoldTo/PostalCode}"
-                                                        valueState="{parts: ['viewContextModel>/SoldTo/PostalCodeConfidence', 'viewContextModel>/SoldTo/PostalCode'], formatter: '.formatConfidenceValueState'}"
+                                                    <Input id="_IDGenSoldToPostalInput"
+                                                        value="{context>/edit/SoldTo/PostalCode}"
+                                                        valueState="{parts: ['context>/edit/SoldTo/PostalCodeConfidence', 'context>/edit/SoldTo/PostalCode'], formatter: '.formatConfidenceValueState'}"
+                                                        visible="{parts: ['context>/edit/SoldTo/Enrichment', 'context>/edit/SoldTo/Enrichment/Name'], formatter: '.hasNoEnrichmentData'}"
                                                     />
                                                 </f:content>
                                             </f:SimpleForm>
@@ -242,26 +230,26 @@
                                                 <f:content>
                                                     <Label id="_IDGenLabel7" text="Name" />
                                                     <Input id="_IDGenInput_ShipToName"
-                                                        value="{viewContextModel>/edit/ShipTo/Name}"
-                                                        valueState="{parts: ['viewContextModel>/ShipTo/NameConfidence', 'viewContextModel>/edit/ShipTo/Name'], formatter: '.formatConfidenceValueState'}"
+                                                        value="{context>/edit/ShipTo/Name}"
+                                                        valueState="{parts: ['context>/edit/ShipTo/NameConfidence', 'context>/edit/ShipTo/Name'], formatter: '.formatConfidenceValueState'}"
                                                     />
 
                                                     <Label id="_IDGenLabel8" text="City, State" />
                                                     <Input id="_IDGenInput_ShipToCityState"
-                                                        value="{viewContextModel>/ShipTo/CityState}"
-                                                        valueState="{parts: ['viewContextModel>/ShipTo/CityStateConfidence', 'viewContextModel>/ShipTo/CityState'], formatter: '.formatConfidenceValueState'}"
+                                                        value="{context>/edit/ShipTo/CityState}"
+                                                        valueState="{parts: ['context>/edit/ShipTo/CityStateConfidence', 'context>/edit/ShipTo/CityState'], formatter: '.formatConfidenceValueState'}"
                                                     />
 
                                                     <Label id="_IDGenLabel9" text="Street" />
                                                     <Input id="_IDGenInput_ShipToStreet"
-                                                        value="{viewContextModel>/ShipTo/Street}"
-                                                        valueState="{parts: ['viewContextModel>/ShipTo/StreetConfidence', 'viewContextModel>/ShipTo/Street'], formatter: '.formatConfidenceValueState'}"
+                                                        value="{context>/edit/ShipTo/Street}"
+                                                        valueState="{parts: ['context>/edit/ShipTo/StreetConfidence', 'context>/edit/ShipTo/Street'], formatter: '.formatConfidenceValueState'}"
                                                     />
 
                                                     <Label id="_IDGenLabel10" text="Postal Code" />
                                                     <Input id="_IDGenInput_ShipToPostal"
-                                                        value="{viewContextModel>/ShipTo/PostalCode}"
-                                                        valueState="{parts: ['viewContextModel>/ShipTo/PostalCodeConfidence', 'viewContextModel>/ShipTo/PostalCode'], formatter: '.formatConfidenceValueState'}"
+                                                        value="{context>/edit/ShipTo/PostalCode}"
+                                                        valueState="{parts: ['context>/edit/ShipTo/PostalCodeConfidence', 'context>/edit/ShipTo/PostalCode'], formatter: '.formatConfidenceValueState'}"
                                                     />
                                                 </f:content>
                                             </f:SimpleForm>
@@ -288,7 +276,7 @@
                                 <VBox id="_IDGenVBox7" class="sapUiMediumMargin">
                                     <Table
                                         id="lineItemsTable"
-                                        items="{viewContextModel>/LineItems}"
+                                        items="{context>/edit/LineItems}"
                                         mode="None"
                                         class="sapUiResponsiveMargin"
                                         growing="true"
@@ -332,36 +320,36 @@
                                             <ColumnListItem id="_IDGenColumnListItem">
                                                 <cells>
                                                     <Input id="_IDGenInput_SupplierMat"
-                                                        value="{viewContextModel>SupplierMaterialNumber}"
-                                                        valueState="{parts: ['viewContextModel>SupplierMaterialNumberConfidence', 'viewContextModel>SupplierMaterialNumber'], formatter: '.formatConfidenceValueState'}"
+                                                        value="{context>SupplierMaterialNumber}"
+                                                        valueState="{parts: ['context>SupplierMaterialNumberConfidence', 'context>SupplierMaterialNumber'], formatter: '.formatConfidenceValueState'}"
                                                     />
                                                     <Input id="_IDGenInput_CustomerMat"
-                                                        value="{viewContextModel>CustomerMaterialNumber}"
-                                                        valueState="{parts: ['viewContextModel>CustomerMaterialNumberConfidence', 'viewContextModel>CustomerMaterialNumber'], formatter: '.formatConfidenceValueState'}"
+                                                        value="{context>CustomerMaterialNumber}"
+                                                        valueState="{parts: ['context>CustomerMaterialNumberConfidence', 'context>CustomerMaterialNumber'], formatter: '.formatConfidenceValueState'}"
                                                     />
                                                     <Input id="_IDGenInput_Description"
-                                                        value="{viewContextModel>Description}"
-                                                        valueState="{parts: ['viewContextModel>DescriptionConfidence', 'viewContextModel>Description'], formatter: '.formatConfidenceValueState'}"
+                                                        value="{context>Description}"
+                                                        valueState="{parts: ['context>DescriptionConfidence', 'context>Description'], formatter: '.formatConfidenceValueState'}"
                                                     />
                                                     <Input id="_IDGenInput_ItemNumber"
-                                                        value="{viewContextModel>ItemNumber}"
-                                                        valueState="{parts: ['viewContextModel>ItemNumberConfidence', 'viewContextModel>ItemNumber'], formatter: '.formatConfidenceValueState'}"
+                                                        value="{context>ItemNumber}"
+                                                        valueState="{parts: ['context>ItemNumberConfidence', 'context>ItemNumber'], formatter: '.formatConfidenceValueState'}"
                                                     />
                                                     <Input id="_IDGenInput_UnitPrice"
-                                                        value="{viewContextModel>UnitPrice}"
-                                                        valueState="{parts: ['viewContextModel>UnitPriceConfidence', 'viewContextModel>UnitPrice'], formatter: '.formatConfidenceValueState'}"
+                                                        value="{context>UnitPrice}"
+                                                        valueState="{parts: ['context>UnitPriceConfidence', 'context>UnitPrice'], formatter: '.formatConfidenceValueState'}"
                                                     />
                                                     <Input id="_IDGenInput_CurrencyCode"
-                                                        value="{viewContextModel>CurrencyCode}"
-                                                        valueState="{parts: ['viewContextModel>CurrencyCodeConfidence', 'viewContextModel>CurrencyCode'], formatter: '.formatConfidenceValueState'}"
+                                                        value="{context>CurrencyCode}"
+                                                        valueState="{parts: ['context>CurrencyCodeConfidence', 'context>CurrencyCode'], formatter: '.formatConfidenceValueState'}"
                                                     />
                                                     <Input id="_IDGenInput_Quantity"
-                                                        value="{viewContextModel>Quantity}"
-                                                        valueState="{parts: ['viewContextModel>QuantityConfidence', 'viewContextModel>Quantity'], formatter: '.formatConfidenceValueState'}"
+                                                        value="{context>Quantity}"
+                                                        valueState="{parts: ['context>QuantityConfidence', 'context>Quantity'], formatter: '.formatConfidenceValueState'}"
                                                     />
                                                     <Input id="_IDGenInput_UOM"
-                                                        value="{viewContextModel>UnitOfMeasure}"
-                                                        valueState="{parts: ['viewContextModel>UnitOfMeasureConfidence', 'viewContextModel>UnitOfMeasure'], formatter: '.formatConfidenceValueState'}"
+                                                        value="{context>UnitOfMeasure}"
+                                                        valueState="{parts: ['context>UnitOfMeasureConfidence', 'context>UnitOfMeasure'], formatter: '.formatConfidenceValueState'}"
                                                     />
                                                 </cells>
                                             </ColumnListItem>
@@ -385,17 +373,17 @@
                                 <VBox id="_IDGenVBox10" class="sapUiMediumMargin">
                                     <PDFViewer displayType="Embedded"
                                         id="pdfViewer"
-                                    source="{viewContextModel>/PdfSource}"
-                                    title="{viewContextModel>/FileName}"
+                                    source="{context>/edit/PdfSource}"
+                                    title="{context>/edit/FileName}"
                                         width="100%"
                                         height="600px"
                                         showDownloadButton="true"
-                                        visible="{viewContextModel>/PdfAvailable}"
+                                        visible="{context>/edit/PdfAvailable}"
                                     />
                                     <MessageStrip id="_IDGenMessageStrip"
                                         text="No document available."
                                         type="Information"
-                                        visible="{= ${viewContextModel>/PdfAvailable} === false}"
+                                        visible="{= ${context>/edit/PdfAvailable} === false}"
                                     />
                                 </VBox>
                             </uxap:blocks>
