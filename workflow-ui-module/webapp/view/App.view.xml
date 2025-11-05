@@ -361,36 +361,6 @@
                     </uxap:subSections>
                 </uxap:ObjectPageSection>
             </uxap:sections>
-
-            <!-- <uxap:sections>
-                <uxap:ObjectPageSection
-                    id="pdfSection"
-                    title="Source Document"
-                titleUppercase="false">
-                    <uxap:subSections>
-                        <uxap:ObjectPageSubSection id="pdfSubSection">
-                            <uxap:blocks>
-                                <VBox id="_IDGenVBox10" class="sapUiMediumMargin">
-                                    <PDFViewer displayType="Embedded"
-                                        id="pdfViewer"
-                                    source="{context>/edit/PdfSource}"
-                                    title="{context>/edit/FileName}"
-                                        width="100%"
-                                        height="600px"
-                                        showDownloadButton="true"
-                                        visible="{context>/edit/PdfAvailable}"
-                                    />
-                                    <MessageStrip id="_IDGenMessageStrip"
-                                        text="No document available."
-                                        type="Information"
-                                        visible="{= ${context>/edit/PdfAvailable} === false}"
-                                    />
-                                </VBox>
-                            </uxap:blocks>
-                        </uxap:ObjectPageSubSection>
-                    </uxap:subSections>
-                </uxap:ObjectPageSection>
-            </uxap:sections> -->
         </uxap:ObjectPageLayout>
     </App>
 </mvc:View>

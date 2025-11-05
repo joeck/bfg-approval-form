@@ -68,18 +68,6 @@ sap.ui.define(
             postalKey: "shipToPostalCode"
           });
 
-          // Comments
-          // const commentRaw = this._val(headerMap, "comment");
-          // if (commentRaw && typeof commentRaw === "string") {
-          //   const lines = commentRaw
-          //     .split(/\r?\n/)
-          //     .map(l => l.trim())
-          //     .filter(l => l.length);
-          //   contextData.Comments = lines.length > 1 ? lines : commentRaw; // array or single string
-          // } else {
-          //   contextData.Comments = "";
-          // }
-
           // Line Items
           contextData.LineItems = this._mapLineItems(rawData.lineItems);
 
