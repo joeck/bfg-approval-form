@@ -187,6 +187,7 @@ sap.ui.define(
          * - DD.MM.YYYY, DD/MM/YYYY, DD-MM-YYYY, DD.MM.YY, DD/MM/YY, DD-MM-YY
          * - DD. Monat YYYY, DD Monat YYYY (e.g., "21. Oktober 2025", "21 Okt 2025")
          * - YYYY-MM-DD, YYYY/MM/DD, YYYY.MM.DD (ISO and variants)
+         * Uses CET timezone (Central European Time) for delivery dates
          * @param {string} dateString - Date string in various Swiss formats
          * @returns {string|null} - Microsoft JSON date format "\/Date(timestamp)\/" or "" if invalid
          */
@@ -263,7 +264,9 @@ sap.ui.define(
               return "";
             }
             
-            // Create date object
+            // Create date object in CET timezone
+            // CET is UTC+1, CEST (summer time) is UTC+2
+            // Create date in local time first, then adjust to CET
             const date = new Date(year, month, day);
             if (isNaN(date.getTime())) {
               return "";
@@ -274,11 +277,59 @@ sap.ui.define(
               return "";
             }
             
-            const timestamp = date.getTime();
-            return "\\/Date(" + timestamp + ")\\/";
+            // Convert to CET timezone explicitly
+            // CET is UTC+1 (winter) or UTC+2 (summer/CEST)
+            // Create the date in CET by adjusting from UTC
+            const utcDate = new Date(Date.UTC(year, month, day, 12, 0, 0)); // Noon UTC
+            
+            // Determine if the date falls in CET (UTC+1) or CEST (UTC+2)
+            // CEST runs from last Sunday in March to last Sunday in October
+            const isCEST = this._isCEST(utcDate);
+            const cetOffsetHours = isCEST ? 2 : 1; // UTC+2 for CEST, UTC+1 for CET
+            
+            // Adjust to CET/CEST
+            const cetTimestamp = utcDate.getTime() + (cetOffsetHours * 60 * 60 * 1000);
+            
+            return "\\/Date(" + cetTimestamp + ")\\/";
           } catch (e) {
             return "";
           }
+        },
+
+        /**
+         * Determine if a given date falls within CEST (Central European Summer Time)
+         * CEST runs from last Sunday in March to last Sunday in October
+         * @param {Date} date - The date to check
+         * @returns {boolean} - True if date is in CEST period
+         */
+        _isCEST: function(date) {
+          const year = date.getUTCFullYear();
+          
+          // Find last Sunday in March
+          const marchLastSunday = this._getLastSundayOfMonth(year, 2); // March = 2
+          
+          // Find last Sunday in October  
+          const octoberLastSunday = this._getLastSundayOfMonth(year, 9); // October = 9
+          
+          return date >= marchLastSunday && date < octoberLastSunday;
+        },
+
+        /**
+         * Get the last Sunday of a given month/year
+         * @param {number} year - The year
+         * @param {number} month - The month (0-based, so March = 2)
+         * @returns {Date} - Date object for the last Sunday
+         */
+        _getLastSundayOfMonth: function(year, month) {
+          // Get the last day of the month
+          const lastDay = new Date(Date.UTC(year, month + 1, 0));
+          
+          // Find the last Sunday (day 0 = Sunday)
+          const dayOfWeek = lastDay.getUTCDay();
+          const daysToSubtract = dayOfWeek === 0 ? 0 : dayOfWeek;
+          
+          const lastSunday = new Date(Date.UTC(year, month + 1, 0 - daysToSubtract, 2, 0, 0)); // 2 AM UTC
+          return lastSunday;
         },
       }
     );

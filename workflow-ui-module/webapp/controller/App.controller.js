@@ -329,6 +329,81 @@ sap.ui.define(
               UnitOfMeasureConfidence: getConfidence(li, "unitOfMeasure")
             };
           });
+        },
+
+        /**
+         * Add a new line item to the table
+         */
+        onAddLineItem: function() {
+          const oModel = this.getOwnerComponent().getModel("context");
+          const aLineItems = oModel.getProperty("/edit/LineItems") || [];
+          
+          // Create a new empty line item with default confidence values
+          const oNewItem = {
+            SupplierMaterialNumber: "",
+            CustomerMaterialNumber: "",
+            Description: "",
+            ItemNumber: (aLineItems.length + 1).toString(),
+            UnitPrice: "",
+            CurrencyCode: "",
+            Quantity: "",
+            UnitOfMeasure: "",
+            // Default confidence values for new items
+            SupplierMaterialNumberConfidence: 1.0,
+            CustomerMaterialNumberConfidence: 1.0,
+            DescriptionConfidence: 1.0,
+            ItemNumberConfidence: 1.0,
+            UnitPriceConfidence: 1.0,
+            CurrencyCodeConfidence: 1.0,
+            QuantityConfidence: 1.0,
+            UnitOfMeasureConfidence: 1.0
+          };
+          
+          // Add the new item to the array
+          aLineItems.push(oNewItem);
+          
+          // Update the model
+          oModel.setProperty("/edit/LineItems", aLineItems);
+          
+          // Update the view model as well
+          const oViewModel = this.getView().getModel("viewContextModel");
+          if (oViewModel) {
+            oViewModel.setProperty("/LineItems", aLineItems);
+          }
+        },
+
+        /**
+         * Remove a line item from the table
+         */
+        onRemoveLineItem: function(oEvent) {
+          const oModel = this.getOwnerComponent().getModel("context");
+          const oViewModel = this.getView().getModel("viewContextModel");
+          const aLineItems = oModel.getProperty("/edit/LineItems") || [];
+          
+          // Get the binding context of the pressed button
+          const oBindingContext = oEvent.getSource().getBindingContext("context");
+          const sPath = oBindingContext.getPath();
+          
+          // Extract the index from the path (e.g., "/edit/LineItems/2" -> 2)
+          const iIndex = parseInt(sPath.split("/").pop());
+          
+          if (iIndex >= 0 && iIndex < aLineItems.length) {
+            // Remove the item from the array
+            aLineItems.splice(iIndex, 1);
+            
+            // Reindex the remaining items
+            aLineItems.forEach((item, index) => {
+              item.ItemNumber = (index + 1).toString();
+            });
+            
+            // Update the model
+            oModel.setProperty("/edit/LineItems", aLineItems);
+            
+            // Update the view model as well
+            if (oViewModel) {
+              oViewModel.setProperty("/LineItems", aLineItems);
+            }
+          }
         }
       });
     }

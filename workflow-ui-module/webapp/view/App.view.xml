@@ -288,9 +288,19 @@
                                                     text="Materials"
                                                     level="H2"
                                                 />
+                                                <ToolbarSpacer id="_IDGenToolbarSpacer" />
+                                                <Button id="_IDGenButtonAddRow"
+                                                    text="Add Row"
+                                                    icon="sap-icon://add"
+                                                    type="Emphasized"
+                                                    press=".onAddLineItem"
+                                                />
                                             </Toolbar>
                                         </headerToolbar>
                                         <columns>
+                                            <Column id="_IDGenColumnActions" width="5rem">
+                                                <Text id="_IDGenTextActions" text="Actions" />
+                                            </Column>
                                             <Column id="_IDGenColumn88">
                                                 <Text id="_IDGenText88" text="Bell Material" />
                                             </Column>
@@ -319,6 +329,12 @@
                                         <items>
                                             <ColumnListItem id="_IDGenColumnListItem">
                                                 <cells>
+                                                    <Button id="_IDGenButtonDeleteRow"
+                                                        icon="sap-icon://delete"
+                                                        type="Reject"
+                                                        press=".onRemoveLineItem"
+                                                        tooltip="Remove row"
+                                                    />
                                                     <Input id="_IDGenInput_SupplierMat"
                                                         value="{context>SupplierMaterialNumber}"
                                                         valueState="{parts: ['context>SupplierMaterialNumberConfidence', 'context>SupplierMaterialNumber'], formatter: '.formatConfidenceValueState'}"

@@ -1,1 +1,21 @@
 /* Enter your custom styles here */
+
+/* LineItems table styling */
+.hideEnrichmentSection {
+  display: none !important;
+}
+
+/* Style for add/remove buttons in table */
+#lineItemsTable .sapMBtn {
+  margin: 0.25rem;
+}
+
+/* Make actions column more compact */
+#lineItemsTable .sapMTableCol:first-child {
+  text-align: center;
+}
+
+/* Ensure table is responsive */
+#lineItemsTable {
+  width: 100%;
+}
